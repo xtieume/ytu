@@ -1,7 +1,7 @@
 # ytu
 
-![GitHub stars](https://img.shields.io/github/stars/USER/ytu?style=flat-square)
-![GitHub release](https://img.shields.io/github/v/release/USER/ytu?style=flat-square)
+![GitHub stars](https://img.shields.io/github/stars/xtieume/ytu?style=flat-square)
+![GitHub release](https://img.shields.io/github/v/release/xtieume/ytu?style=flat-square)
 ![Go version](https://img.shields.io/badge/go-1.21+-blue?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey?style=flat-square)
@@ -32,7 +32,7 @@ A minimal web UI for downloading YouTube videos and music via `yt-dlp`, packaged
 
 ### Download pre-built binary
 
-Grab the latest release from [Releases](https://github.com/USER/ytu/releases), then:
+Grab the latest release from [Releases](https://github.com/xtieume/ytu/releases), then:
 
 ```bash
 chmod +x ytu
@@ -42,7 +42,7 @@ chmod +x ytu
 ### Build from source
 
 ```bash
-git clone https://github.com/USER/ytu.git
+git clone https://github.com/xtieume/ytu.git
 cd ytu
 go build -o ytu .
 ./ytu
