@@ -8,7 +8,9 @@
 
 A minimal web UI for downloading YouTube videos and music via `yt-dlp`, packaged as a single Go binary.
 
-![screenshot](https://i.imgur.com/placeholder.png)
+![](docs/images/1.png)
+![](docs/images/2.png)
+![](docs/images/3.png)
 
 ## Features
 
