@@ -44,8 +44,24 @@ chmod +x ytu
 ```bash
 git clone https://github.com/xtieume/ytu.git
 cd ytu
-go build -o ytu .
+go build -ldflags="-s -w" -o ytu .
 ./ytu
+```
+
+### Cross-compile for other platforms
+
+```bash
+# macOS Apple Silicon
+GOOS=darwin  GOARCH=arm64  go build -ldflags="-s -w" -o dist/ytu-macos-arm64 .
+
+# macOS Intel
+GOOS=darwin  GOARCH=amd64  go build -ldflags="-s -w" -o dist/ytu-macos-amd64 .
+
+# Linux x86_64
+GOOS=linux   GOARCH=amd64  go build -ldflags="-s -w" -o dist/ytu-linux-amd64 .
+
+# Windows x86_64
+GOOS=windows GOARCH=amd64  go build -ldflags="-s -w" -o dist/ytu-windows-amd64.exe .
 ```
 
 Browser opens automatically at `http://localhost:8080`.
