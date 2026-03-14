@@ -1,0 +1,94 @@
+{
+  "app.title": "ytu — Tải nhạc YouTube",
+  "nav.downloads": "Tải xuống",
+  "nav.history": "Lịch sử",
+  "nav.settings": "Cài đặt",
+
+  "add.placeholder": "Dán URL YouTube hoặc Playlist…",
+  "add.btn": "Thêm",
+  "add.fetching": "Đang tải…",
+  "add.download": "Tải xuống",
+  "add.cancel": "Hủy",
+  "add.fq_label": "Chọn định dạng & chất lượng",
+
+  "choice.message": "URL này có kèm playlist. Bạn muốn tải gì?",
+  "choice.single": "Chỉ video này",
+  "choice.playlist": "Toàn bộ playlist",
+  "choice.cancel": "Hủy",
+
+  "queue.label": "Hàng đợi",
+  "queue.empty": "Dán URL YouTube vào ô trên để bắt đầu",
+
+  "status.pending": "Đang chờ…",
+  "status.done": "Hoàn thành",
+  "status.error": "Lỗi",
+  "status.cancelled": "Đã hủy",
+
+  "history.label": "Lịch sử",
+  "history.clear": "Xóa tất cả",
+  "history.empty": "Chưa có lượt tải nào",
+  "history.confirm_clear": "Xóa toàn bộ lịch sử tải xuống?",
+
+  "playlist.title": "Playlist",
+  "playlist.select_all": "Chọn tất cả",
+  "playlist.download": "Tải các mục đã chọn",
+  "playlist.warning": "Playlist này có {n} video. Tải tất cả có thể mất nhiều thời gian.",
+
+  "settings.download": "Tải xuống",
+  "settings.output_dir": "Thư mục lưu file",
+  "settings.output_dir_hint": "Nơi lưu các file đã tải",
+  "settings.concurrency": "Tải đồng thời",
+  "settings.concurrency_hint": "Số lượt tải chạy song song tối đa",
+  "settings.active_info": "{active} đang chạy / tối đa {max}",
+
+  "settings.defaults": "Mặc định",
+  "settings.default_fq": "Định dạng / chất lượng mặc định",
+  "settings.default_fq_hint": "Tự động chọn khi thêm URL mới",
+
+  "settings.processing": "Xử lý",
+  "settings.embed_thumb": "Nhúng ảnh bìa vào MP3",
+  "settings.ffmpeg_found": "Đã tìm thấy ffmpeg",
+  "settings.ffmpeg_missing": "Không tìm thấy ffmpeg — cài để bật tính năng này",
+
+  "settings.language": "Ngôn ngữ",
+  "settings.language_hint": "Ngôn ngữ hiển thị giao diện",
+
+  "settings.logging": "Nhật ký",
+  "settings.log_dir": "Thư mục log",
+  "settings.log_dir_hint": "Nơi lưu các file log hàng ngày",
+  "settings.log_dir_applied": "Đã cập nhật thư mục log ✓",
+  "settings.log_retention": "Thời gian lưu log",
+  "settings.log_retention_hint": "Số ngày lưu file log (mặc định: 15)",
+
+  "settings.system": "Hệ thống",
+  "settings.change": "Thay đổi",
+  "settings.apply": "Áp dụng",
+  "settings.dir_applied": "Đã cập nhật thư mục lưu ✓",
+  "settings.threads_updated": "Số luồng đã cập nhật thành {n} — áp dụng cho lượt tải mới",
+  "settings.retention_updated": "Thời gian lưu log đã đặt thành {n} ngày",
+  "settings.save": "Lưu cài đặt",
+  "settings.saved": "Đã lưu ✓",
+
+  "sys.port": "Cổng",
+  "sys.ytdlp": "yt-dlp",
+  "sys.ffmpeg": "ffmpeg",
+  "sys.found": "Tìm thấy ✓",
+  "sys.not_found": "Không tìm thấy ✗",
+
+  "warn.ytdlp_title": "Không tìm thấy yt-dlp",
+  "warn.ytdlp_desc": "Bắt buộc để tải xuống. Cài đặt bằng:",
+  "warn.ffmpeg_title": "Không tìm thấy ffmpeg",
+  "warn.ffmpeg_desc": "Cần thiết để nhúng ảnh bìa vào MP3. Cài đặt bằng:",
+  "warn.or": "hoặc",
+  "warn.releases": "Tải về ↗",
+
+  "fq.mp3_320": "MP3 · 320 kbps",
+  "fq.mp3_192": "MP3 · 192 kbps",
+  "fq.mp3_128": "MP3 · 128 kbps",
+  "fq.mp4_best": "MP4 · Tốt nhất",
+  "fq.mp4_1080": "MP4 · 1080p",
+  "fq.mp4_720": "MP4 · 720p",
+  "fq.webm_best": "WEBM · Tốt nhất",
+  "fq.webm_1080": "WEBM · 1080p",
+  "fq.webm_720": "WEBM · 720p"
+}

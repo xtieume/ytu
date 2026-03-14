@@ -1,0 +1,94 @@
+{
+  "app.title": "ytu — YouTube Downloader",
+  "nav.downloads": "Downloads",
+  "nav.history": "History",
+  "nav.settings": "Settings",
+
+  "add.placeholder": "Paste a YouTube URL or Playlist URL…",
+  "add.btn": "Add",
+  "add.fetching": "Fetching…",
+  "add.download": "Download",
+  "add.cancel": "Cancel",
+  "add.fq_label": "Choose format & quality",
+
+  "choice.message": "This URL has a playlist attached. What do you want to download?",
+  "choice.single": "This video only",
+  "choice.playlist": "Full playlist",
+  "choice.cancel": "Cancel",
+
+  "queue.label": "Queue",
+  "queue.empty": "Paste a YouTube URL above to get started",
+
+  "status.pending": "Waiting…",
+  "status.done": "Done",
+  "status.error": "Error",
+  "status.cancelled": "Cancelled",
+
+  "history.label": "History",
+  "history.clear": "Clear All",
+  "history.empty": "No downloads yet",
+  "history.confirm_clear": "Clear all download history?",
+
+  "playlist.title": "Playlist",
+  "playlist.select_all": "Select All",
+  "playlist.download": "Download Selected",
+  "playlist.warning": "This playlist has {n} videos. Downloading all may take a long time.",
+
+  "settings.download": "Download",
+  "settings.output_dir": "Output folder",
+  "settings.output_dir_hint": "Where downloaded files are saved",
+  "settings.concurrency": "Concurrent downloads",
+  "settings.concurrency_hint": "Max simultaneous downloads",
+  "settings.active_info": "{active} active / {max} max",
+
+  "settings.defaults": "Defaults",
+  "settings.default_fq": "Default format / quality",
+  "settings.default_fq_hint": "Pre-selected when adding a URL",
+
+  "settings.processing": "Processing",
+  "settings.embed_thumb": "Embed thumbnail into MP3",
+  "settings.ffmpeg_found": "ffmpeg detected",
+  "settings.ffmpeg_missing": "ffmpeg not found — install to enable",
+
+  "settings.language": "Language",
+  "settings.language_hint": "UI display language",
+
+  "settings.logging": "Logging",
+  "settings.log_dir": "Log directory",
+  "settings.log_dir_hint": "Where daily log files are stored",
+  "settings.log_dir_applied": "Log directory updated ✓",
+  "settings.log_retention": "Log retention",
+  "settings.log_retention_hint": "Days to keep log files (default: 15)",
+
+  "settings.system": "System",
+  "settings.change": "Change",
+  "settings.apply": "Apply",
+  "settings.dir_applied": "Output folder updated ✓",
+  "settings.threads_updated": "Thread count updated to {n} — takes effect for new downloads",
+  "settings.retention_updated": "Log retention set to {n} days",
+  "settings.save": "Save Settings",
+  "settings.saved": "Saved ✓",
+
+  "sys.port": "Port",
+  "sys.ytdlp": "yt-dlp",
+  "sys.ffmpeg": "ffmpeg",
+  "sys.found": "Found ✓",
+  "sys.not_found": "Not found ✗",
+
+  "warn.ytdlp_title": "yt-dlp not found",
+  "warn.ytdlp_desc": "Required for all downloads. Install with:",
+  "warn.ffmpeg_title": "ffmpeg not found",
+  "warn.ffmpeg_desc": "Needed for thumbnail embedding in MP3. Install with:",
+  "warn.or": "or",
+  "warn.releases": "Releases ↗",
+
+  "fq.mp3_320": "MP3 · 320 kbps",
+  "fq.mp3_192": "MP3 · 192 kbps",
+  "fq.mp3_128": "MP3 · 128 kbps",
+  "fq.mp4_best": "MP4 · Best",
+  "fq.mp4_1080": "MP4 · 1080p",
+  "fq.mp4_720": "MP4 · 720p",
+  "fq.webm_best": "WEBM · Best",
+  "fq.webm_1080": "WEBM · 1080p",
+  "fq.webm_720": "WEBM · 720p"
+}

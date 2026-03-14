@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ytu — YouTube Downloader</title>
+  <link rel="stylesheet" href="/style.css"/>
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-inner">
+        <div class="logo" id="logo" title="Downloads" style="cursor:pointer">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15V19a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <span>ytu</span>
+        </div>
+        <nav class="tabs">
+          <button class="tab active" data-tab="downloads" data-i18n="nav.downloads">Downloads</button>
+          <button class="tab" data-tab="history"   data-i18n="nav.history">History</button>
+          <button class="tab" data-tab="settings"  data-i18n="nav.settings">Settings</button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main content -->
+    <main class="main">
+
+      <!-- ===== Downloads Tab ===== -->
+      <section class="tab-content active" id="tab-downloads">
+
+        <!-- Dependency warnings -->
+        <div id="dep-warn-ytdlp" class="dep-banner dep-banner-error" hidden>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" flex-shrink="0">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <div class="dep-banner-body">
+            <strong data-i18n="warn.ytdlp_title">yt-dlp not found</strong>
+            <span data-i18n="warn.ytdlp_desc">Required for all downloads. Install with:</span>
+            <code>pip install yt-dlp</code>
+            <span data-i18n="warn.or">or</span>
+            <code>brew install yt-dlp</code>
+            <a href="https://github.com/yt-dlp/yt-dlp/releases" target="_blank" rel="noopener" data-i18n="warn.releases">Releases ↗</a>
+          </div>
+        </div>
+        <div id="dep-warn-ffmpeg" class="dep-banner dep-banner-warn" hidden>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <div class="dep-banner-body">
+            <strong data-i18n="warn.ffmpeg_title">ffmpeg not found</strong>
+            <span data-i18n="warn.ffmpeg_desc">Needed for thumbnail embedding in MP3. Install with:</span>
+            <code>brew install ffmpeg</code>
+            <a href="https://github.com/FFmpeg/FFmpeg/releases" target="_blank" rel="noopener" data-i18n="warn.releases">Releases ↗</a>
+          </div>
+        </div>
+
+        <div class="add-card">
+          <div class="url-row">
+            <input type="text" id="url-input" data-i18n-placeholder="add.placeholder"
+                   autocomplete="off" spellcheck="false"/>
+            <button class="btn btn-primary" id="btn-fetch" data-i18n="add.btn">Add</button>
+          </div>
+
+          <!-- Preview: hidden until URL fetched -->
+          <div class="preview" id="preview" hidden>
+            <img class="preview-thumb" id="preview-thumb" src="" alt=""
+                 onerror="this.style.visibility='hidden'"/>
+            <div class="preview-info">
+              <p class="preview-title" id="preview-title"></p>
+
+              <!-- Format/Quality chips -->
+              <div class="fq-section">
+                <span class="fq-label" data-i18n="add.fq_label">Choose format &amp; quality</span>
+                <div class="fq-chips" id="fq-chips"><!-- rendered by JS --></div>
+              </div>
+
+              <div class="preview-actions">
+                <button class="btn btn-success" id="btn-download" data-i18n="add.download">Download</button>
+                <button class="btn btn-ghost"   id="btn-cancel-preview" data-i18n="add.cancel">Cancel</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mixed URL choice -->
+          <div class="url-choice" id="url-choice" hidden>
+            <p class="url-choice-label" data-i18n="choice.message">This URL has a playlist attached…</p>
+            <div class="url-choice-btns">
+              <button class="btn btn-primary" id="btn-choice-single"   data-i18n="choice.single">This video only</button>
+              <button class="btn btn-ghost"   id="btn-choice-playlist" data-i18n="choice.playlist">Full playlist</button>
+              <button class="btn btn-ghost"   id="btn-choice-cancel"   data-i18n="choice.cancel">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Job list -->
+        <div class="section-title">
+          <span data-i18n="queue.label">Queue</span>
+          <span id="queue-count" class="badge">0</span>
+        </div>
+        <div class="job-list" id="job-list">
+          <div class="empty-state" id="empty-state">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 15V19a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            <p data-i18n="queue.empty">Paste a YouTube URL above to get started</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== Settings Tab ===== -->
+      <section class="tab-content" id="tab-settings">
+        <div class="settings-grid">
+
+          <!-- Download -->
+          <div class="settings-section">
+            <h3 class="settings-section-title" data-i18n="settings.download">Download</h3>
+
+            <div class="setting-row">
+              <div class="setting-label">
+                <label data-i18n="settings.output_dir">Output folder</label>
+                <span class="setting-hint" data-i18n="settings.output_dir_hint">Where downloaded files are saved</span>
+              </div>
+              <div class="setting-control setting-control-wide">
+                <!-- Display mode -->
+                <div class="dir-display" id="dir-display">
+                  <span class="dir-path-text" id="dir-path-text">—</span>
+                  <button class="btn btn-ghost btn-sm" id="btn-change-dir" data-i18n="settings.change">Change</button>
+                </div>
+                <!-- Edit mode -->
+                <div class="dir-edit" id="dir-edit" hidden>
+                  <input type="text" id="s-output-dir" placeholder="~/Downloads/ytu"/>
+                  <button class="btn btn-success btn-sm" id="btn-apply-dir" data-i18n="settings.apply">Apply</button>
+                  <button class="btn btn-ghost btn-sm" id="btn-cancel-dir" data-i18n="add.cancel">Cancel</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-label">
+                <label for="s-concurrency" data-i18n="settings.concurrency">Concurrent downloads</label>
+                <span class="setting-hint">
+                  <span data-i18n="settings.concurrency_hint">Max simultaneous downloads</span>
+                  · <span id="s-active-info">—</span>
+                </span>
+              </div>
+              <div class="setting-control">
+                <input type="number" id="s-concurrency" min="1" max="10" value="3"/>
+              </div>
+            </div>
+          </div>
+
+          <!-- Defaults -->
+          <div class="settings-section">
+            <h3 class="settings-section-title" data-i18n="settings.defaults">Defaults</h3>
+
+            <div class="setting-row">
+              <div class="setting-label">
+                <label data-i18n="settings.default_fq">Default format / quality</label>
+                <span class="setting-hint" data-i18n="settings.default_fq_hint">Pre-selected when adding a URL</span>
+              </div>
+              <div class="setting-control-full">
+                <div class="fq-chips" id="fq-chips-default"><!-- rendered by JS --></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Processing -->
+          <div class="settings-section">
+            <h3 class="settings-section-title" data-i18n="settings.processing">Processing</h3>
+
+            <div class="setting-row">
+              <div class="setting-label">
+                <label for="s-embed-thumbnail" data-i18n="settings.embed_thumb">Embed thumbnail into MP3</label>
+                <span class="setting-hint" id="s-ffmpeg-status" data-i18n="settings.ffmpeg_found">Requires ffmpeg</span>
+              </div>
+              <div class="setting-control">
+                <label class="toggle">
+                  <input type="checkbox" id="s-embed-thumbnail"/>
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Language -->
+          <div class="settings-section">
+            <h3 class="settings-section-title" data-i18n="settings.language">Language</h3>
+
+            <div class="setting-row">
+              <div class="setting-label">
+                <label for="s-language" data-i18n="settings.language">Language</label>
+                <span class="setting-hint" data-i18n="settings.language_hint">UI display language</span>
+              </div>
+              <div class="setting-control">
+                <select id="s-language">
+                  <option value="en">English</option>
+                  <option value="vi">Tiếng Việt</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Logging -->
+          <div class="settings-section">
+            <h3 class="settings-section-title" data-i18n="settings.logging">Logging</h3>
+
+            <div class="setting-row">
+              <div class="setting-label">
+                <label data-i18n="settings.log_dir">Log directory</label>
+                <span class="setting-hint" data-i18n="settings.log_dir_hint">Where log files are stored</span>
+              </div>
+              <div class="setting-control setting-control-wide">
+                <!-- Display mode -->
+                <div class="dir-display" id="logdir-display">
+                  <span class="dir-path-text" id="logdir-path-text">—</span>
+                  <button class="btn btn-ghost btn-sm" id="btn-change-logdir" data-i18n="settings.change">Change</button>
+                </div>
+                <!-- Edit mode -->
+                <div class="dir-edit" id="logdir-edit" hidden>
+                  <input type="text" id="s-log-dir" placeholder="./logs"/>
+                  <button class="btn btn-success btn-sm" id="btn-apply-logdir" data-i18n="settings.apply">Apply</button>
+                  <button class="btn btn-ghost btn-sm" id="btn-cancel-logdir" data-i18n="add.cancel">Cancel</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-label">
+                <label for="s-log-retention" data-i18n="settings.log_retention">Log retention</label>
+                <span class="setting-hint" data-i18n="settings.log_retention_hint">Days to keep log files</span>
+              </div>
+              <div class="setting-control">
+                <input type="number" id="s-log-retention" min="1" max="365" value="15"/>
+              </div>
+            </div>
+          </div>
+
+          <!-- System info -->
+          <div class="settings-section">
+            <h3 class="settings-section-title" data-i18n="settings.system">System</h3>
+            <div class="sysinfo-grid">
+              <div class="sysinfo-item">
+                <span class="sysinfo-label" data-i18n="sys.port">Port</span>
+                <span class="sysinfo-value" id="si-port">—</span>
+              </div>
+              <div class="sysinfo-item">
+                <span class="sysinfo-label" data-i18n="sys.ytdlp">yt-dlp</span>
+                <span class="sysinfo-value" id="si-ytdlp">—</span>
+              </div>
+              <div class="sysinfo-item">
+                <span class="sysinfo-label" data-i18n="sys.ffmpeg">ffmpeg</span>
+                <span class="sysinfo-value" id="si-ffmpeg">—</span>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+      </section>
+
+      <!-- ===== History Tab ===== -->
+      <section class="tab-content" id="tab-history">
+        <div class="history-header">
+          <span class="section-title" data-i18n="history.label">History</span>
+          <button class="btn btn-danger-ghost" id="btn-clear-history" data-i18n="history.clear">Clear All</button>
+        </div>
+        <div class="job-list" id="history-list">
+          <div class="empty-state">
+            <p data-i18n="history.empty">No downloads yet</p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Playlist Modal -->
+  <div class="modal-overlay" id="playlist-modal" hidden>
+    <div class="modal">
+      <div class="modal-header">
+        <h2 data-i18n="playlist.title">Playlist</h2>
+        <button class="modal-close" id="btn-close-playlist">✕</button>
+      </div>
+      <div class="modal-toolbar">
+        <label><input type="checkbox" id="chk-select-all"/>
+          <span data-i18n="playlist.select_all">Select All</span>
+        </label>
+        <span id="playlist-count" class="badge"></span>
+      </div>
+      <div class="playlist-warning" id="playlist-warning" hidden></div>
+      <div class="playlist-items" id="playlist-items"></div>
+      <div class="modal-footer">
+        <!-- Format/quality chips inside playlist modal -->
+        <div class="fq-chips fq-chips-sm" id="fq-chips-playlist"><!-- rendered by JS --></div>
+        <button class="btn btn-success" id="btn-download-playlist" data-i18n="playlist.download">Download Selected</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page loading overlay (playlist fetch / slow operations) -->
+  <div class="page-loading" id="page-loading" hidden>
+    <div class="page-loading-box">
+      <span class="spinner"></span>
+      <span data-i18n="add.fetching">Fetching…</span>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
