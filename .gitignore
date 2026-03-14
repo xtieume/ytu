@@ -4,3 +4,6 @@ settings.json
 logs/
 *.log
 .DS_Store
+.claude/
+.cursor/
+openspec/
