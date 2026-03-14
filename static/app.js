@@ -722,7 +722,11 @@ function escHtml(s) {
 
 function formatDate(iso) {
   if (!iso) return '';
-  try { return new Date(iso).toLocaleString(); } catch { return iso; }
+  try {
+    const d = new Date(iso);
+    const p = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  } catch { return iso; }
 }
 
 function formatBytes(b) {
