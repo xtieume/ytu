@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os/exec"
 	"regexp"
@@ -36,7 +37,7 @@ type ytdlpMeta struct {
 func FetchMetadata(url string) (*VideoMeta, error) {
 	out, err := exec.Command("yt-dlp", "--dump-json", "--no-playlist", url).Output()
 	if err != nil {
-		return nil, fmt.Errorf("yt-dlp metadata failed: %w", err)
+		return nil, fmt.Errorf("yt-dlp metadata failed: %w%s", err, stderrOf(err))
 	}
 	var meta ytdlpMeta
 	if err := json.Unmarshal(out, &meta); err != nil {
@@ -71,7 +72,7 @@ func FetchPlaylist(url string) ([]PlaylistItem, error) {
 	cmd := exec.Command("yt-dlp", "--flat-playlist", "--yes-playlist", "--dump-json", url)
 	out, err := cmd.Output()
 	if err != nil {
-		return nil, fmt.Errorf("yt-dlp playlist failed: %w", err)
+		return nil, fmt.Errorf("yt-dlp playlist failed: %w%s", err, stderrOf(err))
 	}
 
 	items := make([]PlaylistItem, 0)
@@ -209,7 +210,9 @@ func RunDownload(ctx context.Context, job *Job, outputDir string, progressFn fun
 	var stderrLines []string
 
 	// Read stderr in background
+	stderrDone := make(chan struct{})
 	go func() {
+		defer close(stderrDone)
 		scanner := bufio.NewScanner(stderr)
 		for scanner.Scan() {
 			stderrLines = append(stderrLines, scanner.Text())
@@ -230,11 +233,37 @@ func RunDownload(ctx context.Context, job *Job, outputDir string, progressFn fun
 		}
 	}
 
+	<-stderrDone // must finish reading before Wait closes the pipe
 	if err := cmd.Wait(); err != nil {
 		if ctx.Err() != nil {
 			return "", fmt.Errorf("cancelled")
 		}
-		return "", fmt.Errorf("yt-dlp error: %w — %s", err, strings.Join(stderrLines, "; "))
+		return "", fmt.Errorf("yt-dlp error: %w — %s", err, strings.Join(errorLines(stderrLines), "; "))
 	}
 	return outputPath, nil
+}
+
+// errorLines keeps only "ERROR:" lines so the real cause isn't buried under
+// WARNING noise (e.g. the "version older than 90 days" notice).
+func errorLines(lines []string) []string {
+	var out []string
+	for _, l := range lines {
+		if strings.HasPrefix(l, "ERROR:") {
+			out = append(out, l)
+		}
+	}
+	if len(out) == 0 {
+		return lines
+	}
+	return out
+}
+
+// stderrOf extracts yt-dlp's ERROR lines from an exec.Output() failure.
+func stderrOf(err error) string {
+	var ee *exec.ExitError
+	if !errors.As(err, &ee) || len(ee.Stderr) == 0 {
+		return ""
+	}
+	lines := strings.Split(strings.TrimSpace(string(ee.Stderr)), "\n")
+	return " — " + strings.Join(errorLines(lines), "; ")
 }

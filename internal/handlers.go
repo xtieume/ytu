@@ -201,6 +201,18 @@ func (s *Server) HandleCancelJob(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+// POST /api/jobs/{id}/retry
+func (s *Server) HandleRetryJob(w http.ResponseWriter, r *http.Request) {
+	id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/api/jobs/"), "/retry")
+	job := s.Queue.Retry(id)
+	if job == nil {
+		writeError(w, http.StatusNotFound, "job not found or not retryable")
+		return
+	}
+	s.Worker.Submit(job)
+	writeJSON(w, http.StatusOK, job)
+}
+
 // GET /api/history
 func (s *Server) HandleGetHistory(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, s.History.GetAll())

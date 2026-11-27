@@ -65,6 +65,10 @@
                    autocomplete="off" spellcheck="false"/>
             <button class="btn btn-primary" id="btn-fetch" data-i18n="add.btn">Add</button>
           </div>
+          <div class="add-error" id="add-error" role="alert" hidden>
+            <span id="add-error-msg"></span>
+            <button type="button" class="add-error-close" id="add-error-close" aria-label="Close">×</button>
+          </div>
 
           <!-- Preview: hidden until URL fetched -->
           <div class="preview" id="preview" hidden>

@@ -14,6 +14,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"syscall"
 	"time"
 
@@ -66,7 +67,7 @@ func main() {
 		OutputDir:        *outputDir,
 		MaxConcurrent:    *maxConc,
 		DefaultFormat:    "mp3",
-		DefaultQuality:   "320k",
+		DefaultQuality:   "128k",
 		EmbedThumbnail:   true,
 		Language:         "en",
 		LogDir:           defaultLogDir,
@@ -120,6 +121,8 @@ func main() {
 	mux.HandleFunc("/api/jobs/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodDelete {
 			srv.HandleCancelJob(w, r)
+		} else if r.Method == http.MethodPost && strings.HasSuffix(r.URL.Path, "/retry") {
+			srv.HandleRetryJob(w, r)
 		} else {
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		}
