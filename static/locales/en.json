@@ -82,6 +82,10 @@
   "warn.or": "or",
   "warn.releases": "Releases ↗",
 
+  "job.copy_link": "Copy link",
+  "job.copied": "Copied ✓",
+  "job.retry": "Retry",
+
   "fq.mp3_320": "MP3 · 320 kbps",
   "fq.mp3_192": "MP3 · 192 kbps",
   "fq.mp3_128": "MP3 · 128 kbps",

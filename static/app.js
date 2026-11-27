@@ -52,9 +52,9 @@ const FORMAT_OPTIONS = [
 
 // Active selections per chip container id → fqId
 const fqSelections = {
-  'fq-chips': 'mp3-320k',
-  'fq-chips-default': 'mp3-320k',
-  'fq-chips-playlist': 'mp3-320k',
+  'fq-chips': 'mp3-128k',
+  'fq-chips-default': 'mp3-128k',
+  'fq-chips-playlist': 'mp3-128k',
 };
 
 function renderFQChips(containerId, selectedId) {
@@ -80,7 +80,7 @@ function renderFQChips(containerId, selectedId) {
 }
 
 function getFQ(containerId) {
-  const id = fqSelections[containerId] || 'mp3-320k';
+  const id = fqSelections[containerId] || 'mp3-128k';
   return FORMAT_OPTIONS.find(o => o.id === id) || FORMAT_OPTIONS[0];
 }
 
@@ -188,9 +188,16 @@ urlInput.addEventListener('input', () => {
   }
 });
 
+// Inline error banner under the URL box (replaces native alert()).
+const addError = document.getElementById('add-error');
+const addErrorMsg = document.getElementById('add-error-msg');
+function showError(msg) { addErrorMsg.textContent = msg; addError.hidden = !msg; }
+document.getElementById('add-error-close').addEventListener('click', () => showError(''));
+
 async function fetchInfo() {
   const url = urlInput.value.trim();
   if (!url) return;
+  showError('');
   const isPlaylist = isPlaylistOnly(url);
   setFetchLoading(true, isPlaylist);
   try {
@@ -209,14 +216,14 @@ async function fetchInfo() {
 
 async function fetchSingleInfo(url) {
   const res = await api('POST', '/api/info', { url });
-  if (res.error) { alert(res.error); return; }
+  if (res.error) { showError(res.error); return; }
   pendingMeta = res;
   showPreview(res);
 }
 
 async function fetchPlaylist(url) {
   const res = await api('POST', '/api/playlist', { url });
-  if (res.error) { alert(res.error); return; }
+  if (res.error) { showError(res.error); return; }
   playlistItems = res;
   openPlaylistModal(res);
 }
@@ -265,7 +272,8 @@ btnDownload.addEventListener('click', async () => {
     thumbnailUrl: pendingMeta.thumbnailUrl,
   });
   btnDownload.disabled = false;
-  if (res.error) { alert(res.error); return; }
+  if (res.error) { showError(res.error); return; }
+  showError('');
   preview.hidden = true;
   urlInput.value = '';
   pendingMeta = null;
@@ -303,17 +311,24 @@ chkSelectAll.addEventListener('change', () => {
 
 btnDlPlaylist.addEventListener('click', async () => {
   const checked = [...document.querySelectorAll('.pl-chk:checked')].map(c => parseInt(c.dataset.index));
-  if (!checked.length) { alert(t('playlist.select_all')); return; }
+  if (!checked.length) {
+    playlistWarn.textContent = t('playlist.select_all');
+    playlistWarn.hidden = false;
+    return;
+  }
   btnDlPlaylist.disabled = true;
   const fq = getFQ('fq-chips-playlist');
+  const failed = [];
   for (const idx of checked) {
     const item = playlistItems[idx];
     const res = await api('POST', '/api/download', {
       url: item.url, format: fq.format, quality: fq.quality,
       title: item.title, thumbnailUrl: item.thumbnail,
     });
-    if (!res.error) { jobs.unshift(res); connectWS(res.id); }
+    if (res.error) failed.push(`${item.title || item.url}: ${res.error}`);
+    else { jobs.unshift(res); connectWS(res.id); }
   }
+  showError(failed.join('\n'));
   btnDlPlaylist.disabled = false;
   playlistModal.hidden = true;
   urlInput.value = '';
@@ -376,6 +391,24 @@ function updateJobCard(job) {
 }
 
 function attachCancelBtns() {
+  document.querySelectorAll('.btn-retry-job').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const res = await api('POST', `/api/jobs/${btn.dataset.jobid}/retry`);
+      if (res.error) { showError(res.error); return; }
+      const i = jobs.findIndex(j => j.id === res.id);
+      if (i >= 0) jobs[i] = res;
+      updateJobCard(res);
+      connectWS(res.id);
+    });
+  });
+  document.querySelectorAll('.btn-copy-job').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.url);
+        btn.textContent = t('job.copied');
+      } catch { showError(btn.dataset.url); }
+    });
+  });
   document.querySelectorAll('.btn-cancel-job').forEach(btn => {
     btn.addEventListener('click', async () => {
       const id = btn.dataset.jobid;
@@ -388,6 +421,7 @@ function attachCancelBtns() {
 
 function jobCardHTML(job) {
   const canCancel = job.status === 'pending' || job.status === 'running';
+  const canRetry = job.status === 'error' || job.status === 'cancelled';
   const pct = Math.round(job.progress || 0);
   const fqOpt = FORMAT_OPTIONS.find(o => o.format === job.format && o.quality === job.quality);
   const fqLabel = fqOpt ? t(fqOpt.i18n) : `${(job.format||'').toUpperCase()} · ${job.quality||''}`;
@@ -418,7 +452,7 @@ function jobCardHTML(job) {
         ${fname ? `<span class="detail-item detail-path" title="${escHtml(job.outputPath)}">${escHtml(fname)}</span>` : ''}
       </div>`;
   } else if (job.status === 'error') {
-    detailsRow = `<div class="job-detail-row"><span class="detail-item detail-error" title="${escHtml(job.error||'')}">${escHtml((job.error||'').slice(0,90))}</span></div>`;
+    detailsRow = `<div class="job-detail-row"><span class="detail-item detail-error" title="${escHtml(job.error||'')}">${escHtml(job.error||'')}</span></div>`;
   }
 
   return `
@@ -435,7 +469,11 @@ function jobCardHTML(job) {
       </div>
       ${detailsRow}
     </div>
-    ${canCancel ? `<div class="job-actions"><button class="btn-cancel-job" data-jobid="${job.id}" data-i18n="add.cancel">Cancel</button></div>` : ''}
+    <div class="job-actions">
+      <button class="btn-job btn-copy-job" data-url="${escHtml(job.url)}" title="${escHtml(job.url)}">${t('job.copy_link')}</button>
+      ${canRetry ? `<button class="btn-job btn-retry-job" data-jobid="${job.id}">${t('job.retry')}</button>` : ''}
+      ${canCancel ? `<button class="btn-cancel-job" data-jobid="${job.id}">${t('add.cancel')}</button>` : ''}
+    </div>
   </div>`;
 }
 
@@ -476,8 +514,16 @@ function renderHistory() {
   }).join('');
 }
 
+// Two-click confirm instead of native confirm(): first click arms, second clears.
 btnClearHist.addEventListener('click', async () => {
-  if (!confirm(t('history.confirm_clear'))) return;
+  if (!btnClearHist.dataset.armed) {
+    btnClearHist.dataset.armed = '1';
+    btnClearHist.textContent = t('history.confirm_clear');
+    setTimeout(() => { delete btnClearHist.dataset.armed; btnClearHist.textContent = t('history.clear'); }, 3000);
+    return;
+  }
+  delete btnClearHist.dataset.armed;
+  btnClearHist.textContent = t('history.clear');
   await api('DELETE', '/api/history');
   historyItems = [];
   renderHistory();
@@ -605,7 +651,7 @@ async function loadSettings() {
   sLogRetention.dataset.saved = res.logRetentionDays || 15;
 
   // Default FQ chip in settings
-  const defId = FORMAT_OPTIONS.find(o => o.format === res.defaultFormat && o.quality === res.defaultQuality)?.id || 'mp3-320k';
+  const defId = FORMAT_OPTIONS.find(o => o.format === res.defaultFormat && o.quality === res.defaultQuality)?.id || 'mp3-128k';
   fqSelections['fq-chips-default'] = defId;
   renderFQChips('fq-chips-default', defId);
 
@@ -691,7 +737,7 @@ async function init() {
   document.getElementById('dep-warn-ffmpeg').hidden = !!settingsRes.hasFFmpeg;
 
   // Set default FQ chip from settings
-  const defId = FORMAT_OPTIONS.find(o => o.format === settingsRes.defaultFormat && o.quality === settingsRes.defaultQuality)?.id || 'mp3-320k';
+  const defId = FORMAT_OPTIONS.find(o => o.format === settingsRes.defaultFormat && o.quality === settingsRes.defaultQuality)?.id || 'mp3-128k';
   fqSelections['fq-chips'] = defId;
   fqSelections['fq-chips-default'] = defId;
   fqSelections['fq-chips-playlist'] = defId;

@@ -107,6 +107,26 @@ func (q *JobQueue) Cancel(id string) bool {
 	return false
 }
 
+// Retry resets a failed/cancelled job to pending. Returns nil if not retryable.
+func (q *JobQueue) Retry(id string) *Job {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	for _, j := range q.jobs {
+		if j.ID != id {
+			continue
+		}
+		j.mu.Lock()
+		defer j.mu.Unlock()
+		if j.Status != StatusError && j.Status != StatusCancelled {
+			return nil
+		}
+		j.Status = StatusPending
+		j.Progress, j.Speed, j.ETA, j.Error = 0, "", "", ""
+		return j
+	}
+	return nil
+}
+
 // IsDuplicate returns true if a pending/running job with same URL exists.
 func (q *JobQueue) IsDuplicate(url string) bool {
 	q.mu.Lock()

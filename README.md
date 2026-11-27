@@ -79,6 +79,16 @@ Browser opens automatically at `http://localhost:8080`.
   -no-browser   Don't open browser on start
 ```
 
+## Troubleshooting
+
+**"Sign in to confirm you're not a bot"** — YouTube wants a logged-in session. Tell yt-dlp to reuse your browser cookies by adding this line to `~/.config/yt-dlp/config` (Windows: `%APPDATA%\yt-dlp\config.txt`):
+
+```
+--cookies-from-browser chrome
+```
+
+Replace `chrome` with `firefox`, `brave`, `safari`, … or pin a profile, e.g. `chrome:Default`.
+
 ## License
 
 MIT

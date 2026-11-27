@@ -231,8 +231,8 @@ body {
   transition: width .3s ease;
 }
 .job-stats { font-size: .78rem; color: var(--text2); }
-.job-actions { flex-shrink: 0; }
-.btn-cancel-job {
+.job-actions { flex-shrink: 0; display: flex; gap: 6px; }
+.btn-cancel-job, .btn-job {
   background: none; border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 5px 10px; color: var(--text2);
@@ -240,6 +240,7 @@ body {
   transition: background .15s;
 }
 .btn-cancel-job:hover { background: var(--bg3); color: var(--error); border-color: var(--error); }
+.btn-job:hover { background: var(--bg3); color: var(--text); }
 
 /* ===== History ===== */
 .history-header {
@@ -464,7 +465,20 @@ body {
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   max-width: 280px;
 }
-.detail-error { color: var(--error); font-size: .78rem; }
+.detail-error { color: var(--error); font-size: .78rem; white-space: pre-wrap; word-break: break-word; }
+.add-error {
+  display: flex; gap: 10px; align-items: flex-start;
+  margin-top: 10px; padding: 10px 12px;
+  background: rgba(242,107,107,.1); border-left: 3px solid var(--error);
+  border-radius: 4px; color: var(--error); font-size: .83rem;
+  white-space: pre-wrap; word-break: break-word;
+}
+.add-error[hidden] { display: none; }
+.add-error span { flex: 1; }
+.add-error-close {
+  background: none; border: none; color: var(--error);
+  font-size: 1.1rem; line-height: 1; cursor: pointer; padding: 0 2px;
+}
 
 /* Pending shimmer */
 .pending-bar {
